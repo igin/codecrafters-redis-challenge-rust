@@ -37,7 +37,7 @@ fn handle_connection(input_stream: &mut impl Read, output_stream: &mut impl Writ
 fn handle_request(command: &str) -> &'static str {
     match command {
         "PING" => "+PONG\n",
-        &_ => "ERROR\n",
+        &_ => "+PONG\n",
     }
 }
 
