@@ -23,6 +23,7 @@ fn main() {
 fn handle_connection(input_stream: &mut impl Read, output_stream: &mut impl Write) {
     let reader = BufReader::new(input_stream);
     for line in reader.lines() {
+        println!("Got command: {line:?}");
         let response = handle_request(&line.unwrap());
         let amount = output_stream
             .write(response.as_bytes())
