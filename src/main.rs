@@ -25,6 +25,9 @@ fn handle_connection(input_stream: &mut impl Read, output_stream: &mut impl Writ
     for line in reader.lines() {
         println!("Got command: {line:?}");
         let response = handle_request(&line.unwrap());
+
+        print!("Writing response: {response:?}");
+
         let amount = output_stream
             .write(response.as_bytes())
             .expect("Could not write to output stream");
