@@ -25,7 +25,10 @@ fn main() {
 fn handle_connection(input_stream: &mut impl Read, output_stream: &mut impl Write) {
     let reader = BufReader::new(input_stream);
     for line in reader.lines() {
-        let command = line.unwrap();
+        let command = match line {
+            Ok(line) => line,
+            Err(_err) => break,
+        };
         println!("Got command: {command:?}");
         let response = handle_request(&command);
 
