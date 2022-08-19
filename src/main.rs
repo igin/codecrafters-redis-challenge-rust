@@ -1,23 +1,25 @@
 use std::cmp::min;
 use std::io::{BufRead, BufReader, Read, Write};
 use std::net::TcpListener;
+use std::thread;
 
 fn main() {
-    // You can use print statements as follows for debugging, they'll be visible when running tests.
-    println!("Logs from your program will appear here!");
-
     let listener = TcpListener::bind("127.0.0.1:6379").unwrap();
-    match listener.accept() {
-        Ok((socket, _addr)) => {
-            let mut input_stream = socket.try_clone().unwrap();
-            let mut output_stream = socket.try_clone().unwrap();
+    for stream in listener.incoming() {
+        thread::spawn(|| {
+            match stream {
+                Ok(socket) => {
+                    let mut input_stream = socket.try_clone().unwrap();
+                    let mut output_stream = socket.try_clone().unwrap();
 
-            handle_connection(&mut input_stream, &mut output_stream);
-        }
-        Err(e) => {
-            println!("couldn't accept client: {:?}", e);
-        }
-    };
+                    handle_connection(&mut input_stream, &mut output_stream);
+                }
+                Err(e) => {
+                    println!("couldn't accept client: {:?}", e);
+                }
+            };
+        });
+    }
 }
 
 fn handle_connection(input_stream: &mut impl Read, output_stream: &mut impl Write) {
