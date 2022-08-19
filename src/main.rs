@@ -33,8 +33,10 @@ fn handle_connection(input_stream: &mut impl Read, output_stream: &mut impl Writ
             .expect("Could not write to output stream");
 
         if amount == 0 {
-            panic!("Nothing was written to the stream")
+            panic!("Nothing was written to the stream");
         }
+
+        output_stream.flush().expect("Failed to flush");
     }
 }
 
