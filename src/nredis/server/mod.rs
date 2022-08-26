@@ -35,7 +35,7 @@ fn handle_connection(input_stream: &mut impl Read, output_stream: &mut impl Writ
         println!("Got command {command:?}");
 
         let response = command_handler::handle_command(&command);
-        let serialized = resp_serializer::serialize_resp(&response);
+        let serialized = resp_serializer::serialize_resp(&response) + "\r\n";
         println!("Responding with {serialized:?}");
         let written_size = output_stream
             .write(serialized.as_bytes())
