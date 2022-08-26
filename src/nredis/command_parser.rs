@@ -8,8 +8,6 @@ pub fn parse_next_command(reader: &mut impl BufRead) -> Option<command_types::RE
         .read_line(&mut line)
         .expect("Couldn't read a new line");
 
-    println!("Reading line {line}");
-
     match line.chars().next() {
         Some('+') => Some(RESPValue::String(parse_simple_string(&line))),
         Some('-') => Some(RESPValue::Error(parse_error(&line))),
