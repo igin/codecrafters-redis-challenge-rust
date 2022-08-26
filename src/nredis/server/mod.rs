@@ -33,6 +33,7 @@ fn handle_connection(input_stream: &mut impl Read, output_stream: &mut impl Writ
     let mut reader = BufReader::new(input_stream);
     while let Some(command) = parse_next_command(&mut reader) {
         println!("Got command {command:?}");
+
         let response = command_handler::handle_command(&command);
         let serialized = resp_serializer::serialize_resp(&response);
         println!("Responding with {serialized:?}");
