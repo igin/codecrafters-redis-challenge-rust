@@ -15,9 +15,9 @@ fn handle_single_command(message: &str) -> command_types::RESPValue {
     let command = message_parts.next().unwrap();
     let arguments: Vec<&str> = message_parts.collect();
 
-    match command {
-        "ECHO" => handle_echo(&arguments),
-        "PING" => handle_ping(&arguments),
+    match command.to_lowercase().as_str() {
+        "echo" => handle_echo(&arguments),
+        "ping" => handle_ping(&arguments),
         _ => command_types::RESPValue::String(String::from("Unknown command!")),
     }
 }
