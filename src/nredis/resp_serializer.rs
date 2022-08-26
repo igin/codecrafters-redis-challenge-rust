@@ -6,7 +6,7 @@ pub fn serialize_resp(value: &RESPValue) -> String {
         RESPValue::Error(x) => format!("-{}", x.message),
         RESPValue::Array(items) => {
             let values: Vec<String> = items.iter().map(serialize_resp).collect();
-            return format!("*{}\r\n{}", values.len(), values.join("\r\n"));
+            values.join("\r\n")
         }
     }
 }
