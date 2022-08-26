@@ -17,10 +17,15 @@ fn handle_single_command(message: &str) -> command_types::RESPValue {
 
     match command {
         "ECHO" => handle_echo(&arguments),
+        "PING" => handle_ping(&arguments),
         _ => command_types::RESPValue::String(String::from("Unknown command!")),
     }
 }
 
 fn handle_echo(arguments: &[&str]) -> command_types::RESPValue {
     RESPValue::String(arguments.join(" "))
+}
+
+fn handle_ping(arguments: &[&str]) -> command_types::RESPValue {
+    RESPValue::String("PONG".to_string())
 }

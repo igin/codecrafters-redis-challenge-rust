@@ -2,15 +2,11 @@ use super::command_types::RESPValue;
 
 pub fn serialize_resp(value: &RESPValue) -> String {
     match value {
-        RESPValue::String(x) => x.to_string(),
-        RESPValue::Error(x) => x.message.to_string(),
+        RESPValue::String(x) => format!("+{x}"),
+        RESPValue::Error(x) => format!("-{}", x.message),
         RESPValue::Array(items) => {
-            let values: Vec<String> = items
-                .iter()
-                .map(|x| serialize_resp(&x).to_string())
-                .collect();
-            let joined = values.join("\r\n");
-            return joined;
+            let values: Vec<String> = items.iter().map(serialize_resp).collect();
+            return format!("*{}\r\n{}", values.len(), values.join("\r\n"));
         }
     }
 }
