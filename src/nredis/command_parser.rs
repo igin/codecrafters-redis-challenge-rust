@@ -13,7 +13,7 @@ pub fn parse_next_command(reader: &mut impl BufRead) -> Option<command_types::RE
         Some('-') => Some(RESPValue::Error(parse_error(&line))),
         Some('*') => Some(RESPValue::Array(parse_array(&line, reader))),
         Some('$') => Some(RESPValue::String(parse_bulk_string(&line, reader))),
-        Some(x) => None,
+        Some(_) => None,
         None => None,
     }
 }

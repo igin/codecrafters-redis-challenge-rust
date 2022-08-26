@@ -26,6 +26,6 @@ fn handle_echo(arguments: &[&str]) -> command_types::RESPValue {
     RESPValue::String(arguments.join(" "))
 }
 
-fn handle_ping(arguments: &[&str]) -> command_types::RESPValue {
+fn handle_ping(_: &[&str]) -> command_types::RESPValue {
     RESPValue::String("PONG".to_string())
 }

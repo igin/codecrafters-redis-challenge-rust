@@ -2,7 +2,7 @@ use std::io::{BufReader, Read, Write};
 use std::net::TcpListener;
 use std::thread;
 
-use super::command_parser::{self, parse_next_command};
+use super::command_parser::parse_next_command;
 use super::{command_handler, resp_serializer};
 
 pub struct Config<'a> {
@@ -32,8 +32,10 @@ pub fn listen(config: &Config) {
 fn handle_connection(input_stream: &mut impl Read, output_stream: &mut impl Write) {
     let mut reader = BufReader::new(input_stream);
     while let Some(command) = parse_next_command(&mut reader) {
+        println!("Got command {command:?}");
         let response = command_handler::handle_command(&command);
         let serialized = resp_serializer::serialize_resp(&response);
+        println!("Responding with {serialized:?}");
         let written_size = output_stream
             .write(serialized.as_bytes())
             .expect("Could not write to output stream");

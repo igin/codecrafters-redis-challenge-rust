@@ -1,9 +1,5 @@
 use std::fmt;
 
-pub struct Command<'a> {
-    command_type: &'a str,
-}
-
 pub struct RESPError {
     pub message: String,
 }
