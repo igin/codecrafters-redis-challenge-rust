@@ -45,6 +45,8 @@ fn handle_connection(input_stream: &mut impl Read, output_stream: &mut impl Writ
             println!("Failed to write to stream");
             return;
         }
+
+        output_stream.flush().expect("Couldn't flush.");
     }
 }
 
