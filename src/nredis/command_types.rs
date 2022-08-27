@@ -1,5 +1,6 @@
 use std::fmt;
 use std::collections::HashMap;
+use std::time::SystemTime;
 
 pub struct RESPError {
     pub message: String,
@@ -21,6 +22,11 @@ impl fmt::Debug for RESPValue {
     }
 }
 
+pub struct ExpiringValue {
+    pub value: String,
+    pub expiry: Option<SystemTime>,
+}
+
 pub struct State {
-    pub map: HashMap<String, String>,
+    pub map: HashMap<String, ExpiringValue>,
 }

@@ -1,4 +1,6 @@
-use super::command_types::{RESPValue, RESPError, State};
+use std::time::{Duration, SystemTime};
+use std::ops::Add;
+use super::command_types::{RESPValue, RESPError, State, ExpiringValue};
 
 pub fn handle_command(command: &RESPValue, state: &mut State) -> RESPValue {
     match command {
@@ -53,7 +55,25 @@ fn handle_set(arguments: &[&RESPValue], state: &mut State) -> RESPValue {
     let key = arguments_iter.next().unwrap().to_string();
     let value = arguments_iter.next().unwrap().to_string();
 
-    state.map.insert(key, value);
+    let mut expiry: u64 = 0;
+    match arguments_iter.next() {
+        Some(x) => {
+            if *x == "PX" {
+                expiry = arguments_iter.next().unwrap().to_string().parse().unwrap();
+            }
+        },
+        _ => {}
+    }
+
+    let value_to_write = if expiry > 0 {
+        let now = SystemTime::now();
+        let expiry_time = now.add(Duration::from_millis(expiry));
+        ExpiringValue{value: value, expiry: Some(expiry_time)}
+    } else {
+        ExpiringValue{value: value, expiry: None}
+    };
+
+    state.map.insert(key, value_to_write);
     RESPValue::String("OK".to_string())
 }
 
@@ -65,5 +85,12 @@ fn handle_get(arguments: &[&RESPValue], state: &State) -> RESPValue {
 
     let key_to_find = string_arguments.iter().next().unwrap();
     let value = state.map.get(&key_to_find.to_string()).expect("Value not found");
-    RESPValue::String(value.to_string())
+    if let Some(expiry_time) = value.expiry {
+        let now = SystemTime::now();
+        if now > expiry_time {
+            return RESPValue::Error(RESPError{message: "EXPIRED".to_string()})
+        }
+    }
+
+    RESPValue::String(value.value.to_string())
 }
