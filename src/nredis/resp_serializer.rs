@@ -8,5 +8,6 @@ pub fn serialize_resp(value: &RESPValue) -> String {
             let values: Vec<String> = items.iter().map(serialize_resp).collect();
             values.join("\r\n")
         }
+        RESPValue::NullString() => "$-1".to_string()
     }
 }

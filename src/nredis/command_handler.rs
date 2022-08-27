@@ -6,6 +6,7 @@ pub fn handle_command(command: &RESPValue, state: &mut State) -> RESPValue {
     match command {
         RESPValue::String(x) => handle_string(x, state),
         RESPValue::Error(_) => todo!(),
+        RESPValue::NullString() => todo!(),
         RESPValue::Array(items) => {
             let mut iterator = items.iter();
             let command = match iterator.next().unwrap() {
@@ -88,7 +89,7 @@ fn handle_get(arguments: &[&RESPValue], state: &State) -> RESPValue {
     if let Some(expiry_time) = value.expiry {
         let now = SystemTime::now();
         if now > expiry_time {
-            return RESPValue::Error(RESPError{message: "EXPIRED".to_string()})
+            return RESPValue::NullString();
         }
     }
 
