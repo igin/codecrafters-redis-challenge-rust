@@ -58,7 +58,7 @@ fn handle_set(arguments: &[&RESPValue], state: &mut State) -> RESPValue {
     let mut expiry: u64 = 0;
     match arguments_iter.next() {
         Some(x) => {
-            if *x == "PX" {
+            if *x == "px" {
                 expiry = arguments_iter.next().unwrap().to_string().parse().unwrap();
             }
         },
