@@ -17,11 +17,7 @@ pub fn handle_command(command: &command_types::RESPValue) -> command_types::RESP
 }
 
 fn handle_string(message: &str) -> command_types::RESPValue {
-    let mut message_parts = message.split(' ');
-    let command = message_parts.next().unwrap();
-    let arguments: Vec<&str> = message_parts.collect();
-
-    handle_single_command(command, &[])
+    handle_single_command(message, &[])
 }
 
 fn handle_single_command(command: &str, arguments: &[&RESPValue]) -> command_types::RESPValue {
