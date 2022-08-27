@@ -1,9 +1,12 @@
 use std::io::{BufReader, Read, Write};
 use std::net::TcpListener;
 use std::thread;
+use std::collections::HashMap;
 
 use super::command_parser::parse_next_command;
+use super::command_types::{State};
 use super::{command_handler, resp_serializer};
+
 
 pub struct Config<'a> {
     pub address: &'a str,
@@ -11,6 +14,8 @@ pub struct Config<'a> {
 
 pub fn listen(config: &Config) {
     let listener = TcpListener::bind(config.address).unwrap();
+
+
     println!("Starting NRedis server on {:?}", config.address);
     for stream in listener.incoming() {
         thread::spawn(|| {
@@ -19,7 +24,9 @@ pub fn listen(config: &Config) {
                     let mut input_stream = socket.try_clone().unwrap();
                     let mut output_stream = socket.try_clone().unwrap();
 
-                    handle_connection(&mut input_stream, &mut output_stream);
+                    let mut state = State{map: HashMap::new()};
+
+                    handle_connection(&mut input_stream, &mut output_stream, &mut state);
                 }
                 Err(e) => {
                     println!("couldn't accept client: {:?}", e);
@@ -29,12 +36,12 @@ pub fn listen(config: &Config) {
     }
 }
 
-fn handle_connection(input_stream: &mut impl Read, output_stream: &mut impl Write) {
+fn handle_connection(input_stream: &mut impl Read, output_stream: &mut impl Write, state: &mut State) {
     let mut reader = BufReader::new(input_stream);
     while let Some(command) = parse_next_command(&mut reader) {
         println!("Got command {command:?}");
 
-        let response = command_handler::handle_command(&command);
+        let response = command_handler::handle_command(&command, state);
         let serialized = resp_serializer::serialize_resp(&response) + "\r\n";
         println!("Responding with {serialized:?}");
         let written_size = output_stream

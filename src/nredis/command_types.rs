@@ -1,4 +1,5 @@
 use std::fmt;
+use std::collections::HashMap;
 
 pub struct RESPError {
     pub message: String,
@@ -18,4 +19,8 @@ impl fmt::Debug for RESPValue {
             RESPValue::Array(content) => f.debug_list().entries(content).finish(),
         }
     }
+}
+
+pub struct State {
+    pub map: HashMap<String, String>,
 }

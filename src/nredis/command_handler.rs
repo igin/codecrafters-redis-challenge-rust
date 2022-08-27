@@ -1,42 +1,69 @@
-use super::command_types::{self, RESPValue, RESPError};
+use super::command_types::{RESPValue, RESPError, State};
 
-pub fn handle_command(command: &command_types::RESPValue) -> command_types::RESPValue {
+pub fn handle_command(command: &RESPValue, state: &mut State) -> RESPValue {
     match command {
-        command_types::RESPValue::String(x) => handle_string(x),
-        command_types::RESPValue::Error(_) => todo!(),
-        command_types::RESPValue::Array(items) => {
+        RESPValue::String(x) => handle_string(x, state),
+        RESPValue::Error(_) => todo!(),
+        RESPValue::Array(items) => {
             let mut iterator = items.iter();
             let command = match iterator.next().unwrap() {
-                command_types::RESPValue::String(x) => x,
-                _ => {return command_types::RESPValue::Error(RESPError{message: "Command needs to be defined as string".to_string()})}
+                RESPValue::String(x) => x,
+                _ => {return RESPValue::Error(RESPError{message: "Command needs to be defined as string".to_string()})}
             };
             let arguments: Vec<&RESPValue> = iterator.collect();
-            handle_single_command(command, &arguments)
+            handle_single_command(command, &arguments, state)
         }
     }
 }
 
-fn handle_string(message: &str) -> command_types::RESPValue {
-    handle_single_command(message, &[])
+fn handle_string(message: &str, state: &mut State) -> RESPValue {
+    handle_single_command(message, &[], state)
 }
 
-fn handle_single_command(command: &str, arguments: &[&RESPValue]) -> command_types::RESPValue {
+fn handle_single_command(command: &str, arguments: &[&RESPValue], state: &mut State) -> RESPValue {
     match command.to_lowercase().as_str() {
         "echo" => handle_echo(&arguments),
         "ping" => handle_ping(&arguments),
-        _ => command_types::RESPValue::String(String::from("Unknown command!")),
+        "set" => handle_set(&arguments, state),
+        "get" => handle_get(&arguments, &state),
+        _ => RESPValue::String(String::from("Unknown command!")),
     }
 }
 
-fn handle_echo(arguments: &[&RESPValue]) -> command_types::RESPValue {
+fn handle_echo(arguments: &[&RESPValue]) -> RESPValue {
     let string_arguments: Vec<&str> = arguments.iter().map(|&x| match x { 
-        command_types::RESPValue::String(y) => y, 
+        RESPValue::String(y) => y, 
         _ => ""
     }).collect();
 
     RESPValue::String(string_arguments.join(" "))
 }
 
-fn handle_ping(_: &[&RESPValue]) -> command_types::RESPValue {
+fn handle_ping(_: &[&RESPValue]) -> RESPValue {
     RESPValue::String("PONG".to_string())
+}
+
+fn handle_set(arguments: &[&RESPValue], state: &mut State) -> RESPValue {
+    let string_arguments: Vec<&str> = arguments.iter().map(|&x| match x { 
+        RESPValue::String(y) => y, 
+        _ => ""
+    }).collect();
+
+    let mut arguments_iter = string_arguments.iter();
+    let key = arguments_iter.next().unwrap().to_string();
+    let value = arguments_iter.next().unwrap().to_string();
+
+    state.map.insert(key, value);
+    RESPValue::String("OK".to_string())
+}
+
+fn handle_get(arguments: &[&RESPValue], state: &State) -> RESPValue {
+    let string_arguments: Vec<&str> = arguments.iter().map(|&x| match x { 
+        RESPValue::String(y) => y, 
+        _ => ""
+    }).collect();
+
+    let key_to_find = string_arguments.iter().next().unwrap();
+    let value = state.map.get(&key_to_find.to_string()).expect("Value not found");
+    RESPValue::String(value.to_string())
 }
